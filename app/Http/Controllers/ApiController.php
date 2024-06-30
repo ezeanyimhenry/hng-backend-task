@@ -11,16 +11,29 @@ class ApiController extends Controller
     {
         $visitorName = $request->query('visitor_name', 'Guest');
         $clientIp = $request->ip();
+        
+        // Get location information from ip-api.com
         $geoResponse = Http::get("http://ip-api.com/json/{$clientIp}");
         $locationData = $geoResponse->json();
 
         $location = $locationData['city'] ?? 'Unknown Location';
-        $temperature = 11; // Static temperature for simplicity
+        $country = $locationData['country'] ?? 'Unknown Country';
+
+        // Get weather information from OpenWeatherMap
+        $apiKey = config('api.open_weather_api');
+        $weatherResponse = Http::get("https://api.openweathermap.org/data/2.5/weather", [
+            'q' => $location,
+            'appid' => $apiKey,
+            'units' => 'metric'
+        ]);
+        $weatherData = $weatherResponse->json();
+        $temperature = $weatherData['main']['temp'] ?? 'N/A';
 
         return response()->json([
             'client_ip' => $clientIp,
             'location' => $location,
-            'greeting' => "Hello, {$visitorName}!, the temperature is {$temperature} degrees Celsius in {$location}",
+            'country' => $country,
+            'greeting' => "Hello, {$visitorName}!, the temperature is {$temperature} degrees Celsius in {$location}, {$country}"
         ]);
     }
 }
