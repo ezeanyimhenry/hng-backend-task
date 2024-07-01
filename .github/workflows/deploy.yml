@@ -34,4 +34,4 @@ jobs:
           server: ftpupload.net
           username: mseet_36818940
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /
+          server-dir: /htdocs/
